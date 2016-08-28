@@ -1,0 +1,9 @@
+database:
+  user: 'root'
+  password: 'root'
+  database: 'recipe_site'
+  port: ''
+  host: 'localhost'
+
+PORT: 8080
+
