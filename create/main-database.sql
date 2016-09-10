@@ -29,3 +29,15 @@ CREATE TABLE recipe_instructions(
   instruction TEXT,
   recipe_id INT
 );
+
+DROP TABLE IF EXISTS site_users;
+CREATE TABLE site_users(
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  username VARCHAR(30),
+  password VARCHAR(100),
+  UNIQUE KEY `username`(`username`)
+);
+
+
+
+
