@@ -38,6 +38,12 @@ CREATE TABLE site_users(
   UNIQUE KEY `username`(`username`)
 );
 
+DROP TABLE IF EXISTS sessions;
+CREATE TABLE sessions(
+  session_id VARCHAR(100),
+  expires DATETIME NOT NULL,
+  user_id INT NOT NULL
+);
 
 
 

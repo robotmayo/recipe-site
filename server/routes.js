@@ -8,6 +8,7 @@ const recipeService = require('./recipe-service');
 module.exports = function(passport){
   const router = Router();
   router.get('/', function(req, res) {
+    console.log(req.session);
     res.render('index');
   });
   router.get('/register', function(req, res) {
