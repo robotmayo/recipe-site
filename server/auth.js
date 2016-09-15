@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const log = require('logbro');
 
 const DB = require('./db');
 const query = require('./utils/query')
@@ -34,6 +35,7 @@ function serializeUser(user, done) {
 module.exports.serializeUser = serializeUser;
 
 function deserializeUser(user, done) {
+  log.debug('Am I being logged');
   return query('SELECT * FROM site_users WHERE id = ?', user.id)
     .then(results => {
       return done(null, {

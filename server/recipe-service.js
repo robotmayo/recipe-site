@@ -1,19 +1,22 @@
 'use strict';
 const fetch = require('node-fetch');
 
-const query = require('./utils/query');
 const DB = require('./db');
+const query = require('./utils/query').bind(null, DB);
 const scraper = require('./recipe-scraper');
 const MD5 = require('./utils/md5');
 
-const GET_RECIPE_BY_ID = `
+const GET_RECIPE_AND_INGREDIENTS_BY_ID = `
   SELECT * FROM recipe AS r
   JOIN recipe_ingredients AS ri
   ON ri.recipe_id = r.id
-  JOIN recipe_instructions AS rt
-  ON rt.recipe_id = r.id
   WHERE r.id = ?
   `;
+
+const GET_RECIPE_INSTRUCTIONS = `
+  SELECT * FROM recipe_instructions
+  WHERE recipe_id = ?;
+`;
 
 const INSERT_RECIPE_QUERY = `INSERT INTO recipe (name, url_hash, source_url)
 VALUES (?)`;
@@ -29,13 +32,21 @@ VALUES (?)
 `;
 
 function getRecipeById(id) {
-  return query(DB, GET_RECIPE_BY_ID, id)
-  .then(recipe => {
+  return Promise.all(
+    [
+      query(GET_RECIPE_AND_INGREDIENTS_BY_ID, id),
+      query(GET_RECIPE_INSTRUCTIONS, id)
+    ]
+  )
+  .then(results => {
+    if(results[0].length === 0) return Promise.reject(new Error('Recipe not found'));
+    const recipeAndIngredients = results[0];
+    const instructions = results[1];
     return {
-      name : recipe[0].name,
-      sourceURL : recipe.sourceURL,
-      ingredients : recipe.map(i => i.ingredient_text),
-      instructions : recipe.map(i => i.instruction)
+      name : recipeAndIngredients[0].name,
+      sourceURL : recipeAndIngredients[0].sourceURL,
+      ingredients : recipeAndIngredients.map(i => i.ingredient_text),
+      instructions : instructions.map(i => i.instruction)
     };
   })
 }
@@ -71,7 +82,7 @@ function insertRecipe(recipe) {
     MD5(recipe.name + recipe.url),
     recipe.url
   ];
-  return query(DB, INSERT_RECIPE_QUERY, [recipeInsertData])
+  return query(INSERT_RECIPE_QUERY, [recipeInsertData])
     .then(results => {
       // TODO: Handle non inserts
       return Object.assign(recipe, {
@@ -90,7 +101,7 @@ function insertIngredients(recipe) {
       i.raw
     ];
   });
-  return query(DB, INSERT_INGREDIENT_QUERY, [parsedRecipeIngredients])
+  return query(INSERT_INGREDIENT_QUERY, [parsedRecipeIngredients])
     .then(() => {
       //TODO: Handle results
       return recipe;
@@ -103,7 +114,7 @@ function insertInstructions(recipe) {
     recipe.instructions.map(i => {
       return [recipe.id, i];
     });
-  return query(DB, INSERT_INSTRUCTION_QUERY, recipeInstructions)
+  return query(INSERT_INSTRUCTION_QUERY, recipeInstructions)
     .then(() => recipe);
 }
 module.exports.insertInstructions = insertInstructions;

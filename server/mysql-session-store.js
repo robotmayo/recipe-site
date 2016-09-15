@@ -19,10 +19,20 @@ function (session){
   MySQLSessionStore.prototype.get = function(sid, cb){
     log.info('GET SESSION ', sid);
     this.query('SELECT expires, user_id FROM sessions WHERE session_id = ?', sid)
-    .then(results => {
-      log.info('SESSION RESULTS', results);
+    .then(results => { 
       if(results.length === 0) return cb(null, null);
-      cb(null, results[0]);
+      const sessData = results[0];
+      const sessionObj = {
+        cookie : {
+          expires : sessData.expires
+        },
+        passport : {
+          user :{
+            id : sessData.user_id
+          }
+        }
+      };
+      cb(null, sessionObj);
     })
     .catch(cb);
   }

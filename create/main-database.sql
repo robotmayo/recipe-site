@@ -45,5 +45,18 @@ CREATE TABLE sessions(
   user_id INT NOT NULL
 );
 
+DROP TABLE IF EXISTS books; -- Collection of recipes
+CREATE TABLE books(
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT,
+  name VARCHAR(100),
+  description TEXT
+);
 
+DROP TABLE IF EXISTS book_items;
+CREATE TABLE book_items(
+  id INT PRIMARY KEY,
+  book_id INT NOT NULL,
+  recipe_id INT
+);
 
