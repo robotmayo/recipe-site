@@ -1,7 +1,6 @@
 'use strict';
+require('dotenv').config();
 const join = require('path').join;
-const readFileSync = require('fs').readFileSync;
-const safeLoad = require('js-yaml').safeLoad;
 const log = require('logbro');
 const express = require('express');
 const hbs = require('hbs');
@@ -11,7 +10,6 @@ const expressSession = require('express-session');
 
 const Auth = require('./auth');
 const App = express();
-const config = safeLoad(readFileSync(join(__dirname, '../config.yaml')));
 const MySQLStore = require('./mysql-session-store')(expressSession);
 
 hbs.registerPartials(join(__dirname, '../templates/partials'));
@@ -25,7 +23,7 @@ App.use(expressSession({
   store : new MySQLStore({
     query : require('./utils/query').bind(null, require('./db'))
   })
-}))
+}));
 App.use(passport.initialize());
 App.use(passport.session());
 
@@ -37,5 +35,5 @@ App.set('views', join(__dirname, '../templates'));
 App.set('view engine', 'hbs');
 App.use(require('./routes')(passport));
 
-App.listen(config.PORT);
-log.info(`Listening on ${config.PORT}`)
+App.listen(process.env.RECS_APP_PORT);
+log.info(`Listening on ${process.env.RECS_APP_PORT}`);

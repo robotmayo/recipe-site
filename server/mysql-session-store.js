@@ -14,7 +14,7 @@ function (session){
     this.query('DELETE FROM sessions WHERE session_id = sid')
     .then(() => cb(null))
     .catch(cb);
-  }
+  };
 
   MySQLSessionStore.prototype.get = function(sid, cb){
     log.info('GET SESSION ', sid);
@@ -35,7 +35,7 @@ function (session){
       cb(null, sessionObj);
     })
     .catch(cb);
-  }
+  };
 
   MySQLSessionStore.prototype.set = function(sid, session, cb){
     log.trace('SET SESSION', sid, session);
@@ -45,6 +45,6 @@ function (session){
       [sid, session.passport.user.id]
     ).then(() => cb(null))
     .catch(cb);
-  }
+  };
   return MySQLSessionStore;
-}
+};

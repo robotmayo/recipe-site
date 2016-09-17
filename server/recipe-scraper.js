@@ -1,12 +1,30 @@
 'use strict';
-
-const fetch = require('node-fetch');
+/**
+ * @typedef {object} cheerio
+ */
 const cheerio = require('cheerio');
 
+/**
+ * 
+ * 
+ * @typedef {object} StandardRecipe
+ * @property {string} name Recipe name
+ * @property {string} author Recipe author
+ * @property {parsed[]} ingredients Array of parsed ingredients
+ * @property {string[]} instructions Array of instructions
+ * @property {string=""} [sourceURL]
+ */
+
+
+/**
+ * 
+ * Scrape the html for a recipe
+ * @param {string} html
+ * @returns {StandardRecipe}
+ */
 function scrape(html) {
   const $ = cheerio.load(html);
   const recipesSchema = getRecipeSchemas($);
-  const recipes = [];
   const recipeName = getItemProp($, 'name', recipesSchema)
     .text();
   const author = getItemProp($, 'author', recipesSchema)
@@ -24,10 +42,17 @@ function scrape(html) {
     author,
     ingredients,
     instructions
-  }
+  };
 }
 module.exports.scrape = scrape;
 
+/**
+ * 
+ * 
+ * @param {cheerio} $ Cheerio Object
+ * @param {cheerio} $ingredients Cherio object of ingredients see https://schema.org/recipeIngredient
+ * @returns {parsed[]}
+ */
 function parseIngredients($, $ingredients) {
   const parsedIngredients = [];
   $ingredients
@@ -42,6 +67,22 @@ function parseIngredients($, $ingredients) {
 }
 module.exports.parseIngredients = parseIngredients;
 
+/**
+ * 
+ * 
+ * @typedef {Object} parsed
+ * @property {number} parsed.value How much of the ingredient. Used with measurement EG (2 Cups)
+ * @property {string} parsed.measurement The measurement of the ingredient EG (cup)
+ * @property {string} parsed.ingredient The name of the ingredient
+ * @property {string} parsed.raw The raw value
+ */
+
+/**
+ * 
+ * Parse the provided text extracting out ingredients
+ * @param {string} text 
+ * @returns {parsed}
+ */
 function parseIngredientText(text) {
   const tokens = text.replace(/\s+/g, ' ')
     .split(' ');
@@ -78,11 +119,27 @@ function parseIngredientText(text) {
 
 module.exports.parseIngredientText = parseIngredientText;
 
+
+/**
+ * 
+ * 
+ * @param {cheerio} $
+ * @param {string} property
+ * @param {cheerio} context
+ * @returns {cheerio} property Returns the property as a cheerio object
+ */
 function getItemProp($, property, context) {
   return $(`[itemprop=${property}]`, context);
 }
 module.exports.getItemProp = getItemProp;
 
+
+/**
+ * 
+ * 
+ * @param {cheerio} $
+ * @returns {cheerio} recipeData Single cheerio object containing recipe html data
+ */
 function getRecipeSchemas($) {
   return $('[itemtype="http://schema.org/Recipe"]')
     .eq(0);

@@ -46,7 +46,7 @@ test('parseIngredientText', function(t){
     measurement : 'ounces',
     ingredient : 'ketchup',
     raw : '12 ounces ketchup '
-  })
+  });
   t.end();
 });
 

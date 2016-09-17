@@ -44,24 +44,38 @@ function getRecipeById(id) {
     const instructions = results[1];
     return {
       name : recipeAndIngredients[0].name,
-      sourceURL : recipeAndIngredients[0].sourceURL,
+      sourceURL : recipeAndIngredients[0].source_url,
       ingredients : recipeAndIngredients.map(i => i.ingredient_text),
       instructions : instructions.map(i => i.instruction)
     };
-  })
+  });
 }
 module.exports.getRecipeById = getRecipeById;
 
-function addRecipe(url) {
-  return getRecipeDataFromURL(url)
+function importRecipeFromUrl(sourceURL) {
+  return getRecipeDataFromURL(sourceURL)
     .then(insertRecipe)
     .then(insertIngredients)
     .then(insertInstructions);
 }
+module.exports.importRecipeFromUrl = importRecipeFromUrl;
+
+
+/**
+ * 
+ * Add recipe to database
+ * @param {StandardRecipe} standardRecipe
+ * @returns {StandardRecipe} original Returns the original input recipe
+ */
+function addRecipe(standardRecipe){
+  return insertRecipe(standardRecipe)
+  .then(insertIngredients)
+  .then(insertInstructions);
+}
 module.exports.addRecipe = addRecipe;
 
-function getRecipeDataFromURL(url) {
-  return fetch(url, {
+function getRecipeDataFromURL(sourceURL) {
+  return fetch(sourceURL, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT x.y; Win64; x64; rv:10.0) Gecko/20100101 Firefox/10.0'
       }
@@ -72,15 +86,15 @@ function getRecipeDataFromURL(url) {
     })
     .then(scraper.scrape)
     .then(recipe => Object.assign({
-      url
+      sourceURL
     }, recipe));
 }
 
 function insertRecipe(recipe) {
   const recipeInsertData = [
     recipe.name,
-    MD5(recipe.name + recipe.url),
-    recipe.url
+    MD5(recipe.name + recipe.sourceURL),
+    recipe.sourceURL || ''
   ];
   return query(INSERT_RECIPE_QUERY, [recipeInsertData])
     .then(results => {

@@ -69,8 +69,8 @@ module.exports = function(passport){
   });
 
   router.put('/api/recipe/', function(req, res) {
-    const url = req.body.recipeURL;
-    return recipeService.addRecipe(url)
+    const sourceURL = req.body.sourceURL;
+    return recipeService.importRecipeFromUrl(sourceURL)
       .then(() => {
         res.json({
           ok: true
