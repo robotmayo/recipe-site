@@ -34,6 +34,11 @@ passport.deserializeUser(Auth.deserializeUser);
 App.set('views', join(__dirname, '../templates'));
 App.set('view engine', 'hbs');
 App.use(require('./routes')(passport));
+App.use(require('./api')());
 
-App.listen(process.env.RECS_APP_PORT);
-log.info(`Listening on ${process.env.RECS_APP_PORT}`);
+module.exports = App;
+
+if(module === require.main){
+  App.listen(process.env.RECS_APP_PORT);
+  log.info(`Listening on ${process.env.RECS_APP_PORT}`);
+}

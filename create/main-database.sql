@@ -3,6 +3,7 @@ CREATE TABLE recipe(
   id INT PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(300),
   url_hash CHAR(32),
+  author VARCHAR (300),
   source_url VARCHAR(600) NOT NULL DEFAULT ''
   -- UNIQUE KEY `url_hash`(`url_hash`)
 );

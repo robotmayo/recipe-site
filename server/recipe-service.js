@@ -18,7 +18,7 @@ const GET_RECIPE_INSTRUCTIONS = `
   WHERE recipe_id = ?;
 `;
 
-const INSERT_RECIPE_QUERY = `INSERT INTO recipe (name, url_hash, source_url)
+const INSERT_RECIPE_QUERY = `INSERT INTO recipe (name, author, url_hash, source_url)
 VALUES (?)`;
 const INSERT_INGREDIENT_QUERY = `
 INSERT INTO recipe_ingredients 
@@ -44,6 +44,7 @@ function getRecipeById(id) {
     const instructions = results[1];
     return {
       name : recipeAndIngredients[0].name,
+      author : recipeAndIngredients[0].author,
       sourceURL : recipeAndIngredients[0].source_url,
       ingredients : recipeAndIngredients.map(i => i.ingredient_text),
       instructions : instructions.map(i => i.instruction)
@@ -66,6 +67,7 @@ module.exports.importRecipeFromUrl = importRecipeFromUrl;
  * Add recipe to database
  * @param {StandardRecipe} standardRecipe
  * @returns {StandardRecipe} original Returns the original input recipe
+ * @returns {StandardRecipe.id} Id of the recipe in the database
  */
 function addRecipe(standardRecipe){
   return insertRecipe(standardRecipe)
@@ -74,6 +76,11 @@ function addRecipe(standardRecipe){
 }
 module.exports.addRecipe = addRecipe;
 
+/**
+ * 
+ * @param {string} sourceURL
+ * @returns {StandardRecipe}
+ */
 function getRecipeDataFromURL(sourceURL) {
   return fetch(sourceURL, {
       headers: {
@@ -89,10 +96,12 @@ function getRecipeDataFromURL(sourceURL) {
       sourceURL
     }, recipe));
 }
+module.exports.getRecipeDataFromURL = getRecipeDataFromURL;
 
 function insertRecipe(recipe) {
   const recipeInsertData = [
     recipe.name,
+    recipe.author,
     MD5(recipe.name + recipe.sourceURL),
     recipe.sourceURL || ''
   ];

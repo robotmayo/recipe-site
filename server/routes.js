@@ -8,7 +8,6 @@ const recipeService = require('./recipe-service');
 module.exports = function(passport){
   const router = Router();
   router.get('/', function(req, res) {
-    console.log(req.session);
     res.render('index');
   });
   router.get('/register', function(req, res) {
@@ -30,7 +29,7 @@ module.exports = function(passport){
       .catch(err => {
         log.error(err.stack);
         res.render('error');
-      })
+      });
   });
 
 
@@ -49,38 +48,9 @@ module.exports = function(passport){
     .catch(err => {
       res.redirect('/register?error=true');
       log.info(err.stack);
-    })
+    });
   });
 
   router.get('/login', (req, res) => res.render('login'));
-
-  router.get('/api/recipe/:id', function(req, res) {
-    recipeService.getRecipeById(req.params.id)
-      .then(recipe => {
-        res.json({
-          recipe
-        });
-      })
-      .catch(err => {
-        res.json({
-          error: err.stack
-        });
-      });
-  });
-
-  router.put('/api/recipe/', function(req, res) {
-    const sourceURL = req.body.sourceURL;
-    return recipeService.importRecipeFromUrl(sourceURL)
-      .then(() => {
-        res.json({
-          ok: true
-        });
-      })
-      .catch(err => {
-        res.json({
-          error: err.stack
-        });
-      });
-  });
   return router;
-}
+};

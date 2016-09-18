@@ -1,0 +1,14 @@
+{
+  "name" : "TestName",
+  "author" : "TestAuthor",
+  "instructions" : ["Cut apples", "Eat Apples"],
+  "ingredients" : [
+    {
+      "value" : 1,
+      "measurement" : "cups",
+      "ingredient" : "apples",
+      "raw" : "1 cups apples"
+    }
+  ],
+  "sourceURL" : ""
+}
